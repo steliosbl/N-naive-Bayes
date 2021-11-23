@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 import logging
-from dataclasses import dataclass
+
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, NamedTuple, Set, Iterable, Callable, Optional
 
@@ -15,38 +15,13 @@ from sklearn.preprocessing import (
     LabelEncoder,
 )
 
-from gaussian_sub import GaussianSub
+
+from nnb_mixin import NNBMixin
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class BaseNNBMixin:
-    alpha: float = (
-        1.0  # Additive (Laplace/Lidstone) smoothing parameter (0 for no smoothing)
-    )
-    fit_prior: bool = True  # Whether to learn class prior probabilities or not. If false, a uniform prior will be used
-    class_prior: Optional[
-        np.ndarray
-    ] = None  # Prior probabilities of the classes. If specified the priors are not adjusted according to the data
-    delta: float = 0.01  # N-Naive Bayes heuristic probability adjustment factor
-    sub_estimator_factory: _BaseNB = (
-        GaussianSub  # Type of classifier to use as sub-estimator
-    )
-    max_iter: int = 1000  # Max number of iterations of the heuristic
-    disc_threshold: float = 1e-2  # Value of discrimination score that has to be reached for the heuristic to terminate
-    print_probas: bool = False  # Whether to print the probabilities with each iteration of the heuristic (for debugging)
-    enable_heuristic: bool = True  # Whether to run the heuristic
-    reset_s_proba: bool = (
-        True  # Whether to reset the probability of S with each call to `partial_fit`
-    )
-    partial_balance: bool = (
-        True  # Whether to run the heuristic when calling `partial_fit`
-    )
-    estimator_name: str = "BaseNNB"  # The name of this estimator
-
-
-class BaseNNB(ABC, _BaseNB, BaseNNBMixin):
+class BaseNNB(ABC, _BaseNB, NNBMixin):
     def _check_X(self, X):
         X = np.array(X)
         return self._validate_data(X, reset=False)

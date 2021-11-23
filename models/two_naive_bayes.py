@@ -57,8 +57,7 @@ class TwoNaiveBayes(BaseNNB):
             )
             disc, s_min, s_max, probas = self._recalculate(y_pred, S)
 
-        if self.add_prior:
-            self.class_log_prior_ = y_pred_class_log_prior
+        self.class_log_prior_ = y_pred_class_log_prior
 
         logger.info(f"Heuristic took {iter_count} iterations")
         logger.debug(f"Final probas: {probas}")

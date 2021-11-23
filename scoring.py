@@ -3,7 +3,7 @@ import dataclasses
 import numpy as np
 import pandas as pd
 
-from IPython.display import clear_output
+from tqdm import tqdm
 
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import OrdinalEncoder, LabelEncoder
@@ -139,7 +139,13 @@ def diff_bias_amp_restricted(true_probas, pred_probas, s_priv, s_non_priv) -> fl
     ) - diff_epsilon_restricted(true_probas, s_priv, s_non_priv)
 
 
-def scores(y_pred_probas, classes, ds, name: str = "Classifier"):
+def scores(
+    y_pred_probas,
+    classes,
+    ds,
+    name: str = "Classifier",
+    include_restricted: bool = False,
+):
     n_s_groups = ds.s_groups.shape[0]
     y_pred, y_pred_proba = (
         classes[np.argmax(y_pred_probas, axis=1)],
@@ -152,22 +158,23 @@ def scores(y_pred_probas, classes, ds, name: str = "Classifier"):
     m_true = histogram(ds.y, ds.S, n_classes=2, n_s_groups=n_s_groups)
     probas_true = probas_from_histogram(m_true, alpha=1.0, n_classes=2)
 
-    return [
-        dict(Classifier=name, Metric=metric, Score=score)
-        for metric, score in [
-            ("Accuracy", accuracy_score(y_pred=y_pred, y_true=ds.y)),
-            ("AUC", roc_auc_score(y_true=ds.y, y_score=y_pred_proba)),
-            ("DIAvgAll", diavgall(probas_pred, ds.priv, ds.non_priv)),
-            ("Parity", parity(probas_pred, ds.priv, ds.non_priv)),
+    metrics = [
+        ("Accuracy", accuracy_score(y_pred=y_pred, y_true=ds.y)),
+        ("AUC", roc_auc_score(y_true=ds.y, y_score=y_pred_proba)),
+        ("DIAvgAll", diavgall(probas_pred, ds.priv, ds.non_priv)),
+        ("Parity", parity(probas_pred, ds.priv, ds.non_priv)),
+        ("EDF-ratio", diff_ratio(probas_pred, ds.priv, ds.non_priv)),
+        ("EDF-ε", diff_epsilon(probas_pred, ds.priv, ds.non_priv)),
+        (
+            "EDF-amp",
+            diff_bias_amp(probas_true, probas_pred, ds.priv, ds.non_priv),
+        ),
+    ]
+    if include_restricted:
+        metrics += [
             ("Parity-R", parity_restricted(probas_pred, ds.priv, ds.non_priv)),
-            ("EDF-ratio", diff_ratio(probas_pred, ds.priv, ds.non_priv)),
             ("EDF-ratio-R", diff_ratio_restricted(probas_pred, ds.priv, ds.non_priv)),
-            ("EDF-ε", diff_epsilon(probas_pred, ds.priv, ds.non_priv)),
             ("EDF-ε-R", diff_epsilon_restricted(probas_pred, ds.priv, ds.non_priv)),
-            (
-                "EDF-amp",
-                diff_bias_amp(probas_true, probas_pred, ds.priv, ds.non_priv),
-            ),
             (
                 "EDF-amp-R",
                 diff_bias_amp_restricted(
@@ -175,6 +182,9 @@ def scores(y_pred_probas, classes, ds, name: str = "Classifier"):
                 ),
             ),
         ]
+
+    return [
+        dict(Classifier=name, Metric=metric, Score=score) for metric, score in metrics
     ]
 
 
@@ -251,9 +261,7 @@ def score_means(
     include_perfect: bool = False,
 ):
     results = []
-    for _ in range(n_splits):
-        clear_output(wait=True)
-        print(f"Split {_+1} of {n_splits}")
+    for _ in tqdm(range(n_splits)):
         train, test = split_preserve_groups(data, test_size)
         classifiers_cat = (
             {"Classifier": classifiers_cat}
@@ -279,7 +287,6 @@ def score_means(
                 c = tryfit(c, train_bin)
                 y_pred_probas = c.predict_proba(test_bin.X)
                 results += scores(y_pred_probas, c.classes_, test, name=name)
-    clear_output(wait=True)
 
     iterable = dict(list(pd.DataFrame(results).groupby(["Classifier"])))
     if output_order:
