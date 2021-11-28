@@ -13,7 +13,7 @@ This is the implementation for the paper titled: *2NB Revisited: Fairness-aware 
 4. [References](#references)
 
 ## Introduction
-N-naive-Bayes (or NNB) is a fairness-aware machine learning model. It is a generalisation of Two-naive-Bayes, asimple yet effective group-fair binary classification algorithm that which enforces statistical parity - the requirement that the groups comprising the dataset receive positive labels with the same likelihood [1]. 
+N-naive-Bayes (or NNB) is a fairness-aware machine learning model. It is a generalisation of Two-naive-Bayes, a simple yet effective group-fair binary classification algorithm that which enforces statistical parity - the requirement that the groups comprising the dataset receive positive labels with the same likelihood [1]. 
 
 In the paper for this project, we generalise this algorithm to eliminate the simplification of assuming only two sensitive groups in the data and instead apply it to an arbitrary number of groups. We propose an extension of the original algorithm's statistical parity constraint and the post-processing routine that enforces statistical independence of the label and the single sensitive attribute. Then, we investigate its application on data with multiple sensitive features and propose a new constraint and post-processing routine to enforce *differential fairness*, an extension of established group-fairness constraints focused on intersectionalities [2]. 
 
