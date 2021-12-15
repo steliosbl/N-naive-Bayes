@@ -2,7 +2,7 @@
 
 This is the implementation for the paper titled: *2NB Revisited: Fairness-aware Naive Bayes for Data with Multiple Sensitive Features*.
 
-*(link coming soon)*
+[Link to paper (pre-print)](https://github.com/stelioslogothetis/N-naive-Bayes/blob/main/paper.pdf)
 
 ## Table of Contents
 ------
