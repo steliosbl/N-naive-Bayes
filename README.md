@@ -2,7 +2,7 @@
 
 This is the implementation for the paper titled: *Fairness-aware Naive Bayes Classifier for Data with Multiple Sensitive Features*.
 
-[Link to paper (pre-print)](https://github.com/stelioslogothetis/N-naive-Bayes/blob/main/paper.pdf)
+[Publication Link](https://ceur-ws.org/Vol-3276/SSS-22_FinalPaper_69.pdf)
 
 ## Table of Contents
 ------
